@@ -9,6 +9,7 @@ import Home from './HomeComponent';
 import About from './AboutComponent';
 import Dashboard from './DashboardComponent';
 import Settings from './SettingsComponent';
+import ProjectsComponent from './components/ProjectsComponent';
 
 import GlobalFooter from 'ant-design-pro/lib/GlobalFooter';
 
@@ -84,8 +85,14 @@ class App extends React.Component {
               <Menu.Item key="login">
                 <Link to="/login">Login</Link>
               </Menu.Item>
+              <Menu.Item key="logout">
+                <Link to="/logout">Logout</Link>
+              </Menu.Item>
               <Menu.Item key="dashboard">
                 <Link to="/dashboard">Dashboard</Link>
+              </Menu.Item>
+              <Menu.Item key="projects">
+                <Link to="/projects">Projects</Link>
               </Menu.Item>
               <Menu.Item key="settings">
                 <Link to="/settings">
@@ -98,14 +105,21 @@ class App extends React.Component {
               </Menu.Item>
             </Menu>
           </Header>
-          <Content style={{ padding: '0 50px' }}>
-            <div style={{ background: '#fff', padding: 24, minHeight: 280 }}>
+          <Content style={{ margin: '24px 24px 0', height: '100%' }}>
+            <div
+              style={{
+                padding: 24,
+                background: '#fff',
+                minHeight: 'calc(100vh - 20vh)'
+              }}
+            >
               <Route exact path="/" component={Home} />
               <Route path="/about" component={About} />
               <Route path="/login" component={Login} />
               <Route path="/forgot" component={ForgotPasswordForm} />
               <Route path="/dashboard" component={Dashboard} />
               <Route path="/settings" component={Settings} />
+              <Route path="/projects" component={ProjectsComponent} />
             </div>
           </Content>
           <Footer style={{ overflow: 'hidden' }}>

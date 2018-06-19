@@ -5,12 +5,31 @@ import NewTaskComponent from './NewTaskComponent';
 
 import { Route, Switch, Link } from 'react-router-dom';
 
-import { Layout, Menu, Icon, Badge, Divider } from 'antd';
+import { Layout, Menu, Icon, Badge, Divider, Modal, Button } from 'antd';
 
 const { Content, Sider } = Layout;
 
 export default class Dashboard extends React.Component {
+  constructor(props) {
+    super(props);
+    this.showModal = this.showModal.bind(this);
+    this.state = {
+      confirmLoading: false,
+      showNewProjectModal: false,
+      showNewTaskItemModal: false
+    };
+  }
+
+  showModal() {
+    this.setState({ showNewProjectModal: true });
+  }
+
   render() {
+    const {
+      confirmLoading,
+      showNewProjectModal,
+      showNewTaskItemModal
+    } = this.state;
     return (
       <div>
         <Layout style={{ padding: '24px 0', background: '#fff' }}>
@@ -56,12 +75,24 @@ export default class Dashboard extends React.Component {
               </Menu.Item>
               <Divider type="horizontal" />
               <Menu.Item key="add-one">
-                <Icon type="plus" />
-                <span>New project</span>
+                <Button type="primary" onClick={this.showModal}>
+                  <Icon type="plus" /> New project
+                </Button>
               </Menu.Item>
             </Menu>
           </Sider>
           <Content style={{ padding: '0 24px', minHeight: 280 }}>
+            <Modal
+              title="Add Project"
+              wrapClassName="vertical-center-modal"
+              visible={this.state.showNewProjectModal}
+              onOk={() => this.setState({ showNewProjectModal: false })}
+              onCancel={() => this.setState({ showNewProjectModal: false })}
+            >
+              <p>some contents...</p>
+              <p>some contents...</p>
+              <p>some contents...</p>
+            </Modal>
             <Switch>
               <Route exact path="/dashboard" component={TodoListComponent} />
               <Route
