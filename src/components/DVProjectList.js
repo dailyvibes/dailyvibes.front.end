@@ -1,7 +1,6 @@
 import React from 'react';
-import { withRouter, Link } from 'react-router';
 
-import { Table, Icon, Divider, Button } from 'antd';
+import { Table, Icon, Button, Popconfirm, Divider } from 'antd';
 import 'antd/dist/antd.css';
 
 import DVNewTaskComponent from './DVNewTaskComponent';
@@ -24,39 +23,61 @@ const dataSource = [
   }
 ];
 
-const columns = [
-  {
-    title: 'Name',
-    dataIndex: 'name',
-    key: 'name',
-    render: (text, record) => (
-      <a href={`/task/${record.uuid}`} title={record.name}>
-        {record.name}
-      </a>
-    )
-  }
-];
-
 class DVProjectList extends React.Component {
   constructor(props) {
     super(props);
 
     this.handleAddTask = this.handleAddTask.bind(this);
+    this.handleTaskCreateCancel = this.handleTaskCreateCancel.bind(this);
 
     this.state = {
+      projectUUID: props.match.params.projectUUID,
       showAddTask: false
     };
   }
 
   handleAddTask() {
-    this.setState({
-      showAddTask: true
-    });
+    this.setState({ showAddTask: true });
+  }
+
+  handleTaskCreateCancel() {
+    this.setState({ showAddTask: false });
   }
 
   render() {
-    const { showAddTask } = this.state;
+    const { showAddTask, projectUUID } = this.state;
     let button;
+
+    console.log(projectUUID);
+
+    const columns = [
+      {
+        title: 'Name',
+        dataIndex: 'name',
+        key: 'name',
+        render: (text, record) => (
+          <a href={`/task/${record.uuid}`} title={record.name}>
+            {record.name}
+          </a>
+        )
+      },
+      {
+        title: 'Action',
+        key: 'action',
+        render: (text, record) => (
+          <span>
+            <Popconfirm title="Are you sure？" okText="Yes" cancelText="No">
+              <a href={`/task/${record.uuid}/delete`}>Delete</a>
+            </Popconfirm>
+            <Divider type="vertical" />
+            <Popconfirm title="Are you sure？" okText="Yes" cancelText="No">
+              <a href={`/task/${record.uuid}/archive`}>Archive</a>
+            </Popconfirm>
+          </span>
+        )
+      }
+    ];
+
     if (!showAddTask) {
       button = (
         <Button
@@ -71,8 +92,19 @@ class DVProjectList extends React.Component {
     return (
       <div style={{ marginTop: '1em' }}>
         {button}
-        {showAddTask && <DVNewTaskComponent />}
-        <Table dataSource={dataSource} columns={columns} />
+        {showAddTask ? (
+          <React.Fragment>
+            <DVNewTaskComponent ownedBy={projectUUID} />
+            <Button
+              style={{ marginBottom: '1em' }}
+              onClick={this.handleTaskCreateCancel}
+            >
+              Cancel
+            </Button>
+          </React.Fragment>
+        ) : (
+          <Table dataSource={dataSource} columns={columns} />
+        )}
       </div>
     );
   }

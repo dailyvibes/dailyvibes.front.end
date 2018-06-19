@@ -6,6 +6,13 @@ const FormItem = Form.Item;
 const Option = Select.Option;
 
 class DVNewTaskComponent extends Component {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      ownedBy: this.props.ownedBy
+    };
+  }
   handleSubmit = e => {
     e.preventDefault();
     this.props.form.validateFields((err, values) => {
@@ -23,6 +30,38 @@ class DVNewTaskComponent extends Component {
   };
   render() {
     const { getFieldDecorator } = this.props.form;
+    const { ownedBy } = this.state;
+
+    const projects = [
+      {
+        name: 'Inbox',
+        uuid: '73b0bba1-d38a-417b-934f-ab4655e66439'
+      },
+      {
+        name: 'Today',
+        uuid: '28111558-dc23-4a01-8113-560c7994f59a'
+      },
+      {
+        name: 'This week',
+        uuid: '17c56e12-1fad-490e-aa4f-8ee292495166'
+      },
+      {
+        name: 'Unsorted',
+        uuid: 'b7d60a41-af99-4c60-8ab1-bf4655c2f53f'
+      },
+      {
+        name: 'Archived',
+        uuid: '5aead042-0231-47e6-8314-5d938c6d57c0'
+      }
+    ];
+
+    const projectsOptions = projects.map(function(project) {
+      return (
+        <Option value={project.uuid} key={project.uuid}>
+          {project.name}
+        </Option>
+      );
+    });
 
     const formItemLayout = {
       labelCol: {
@@ -87,13 +126,11 @@ class DVNewTaskComponent extends Component {
           </FormItem>
           <FormItem {...formItemLayout} label="Project" hasFeedback>
             {getFieldDecorator('project', {
+              initialValue: ownedBy,
               rules: [{ required: true, message: 'Please select a project' }]
             })(
-              <Select placeholder="Please select a project">
-                <Option value="inbox">Inbox</Option>
-                <Option value="today">Today</Option>
-                <Option value="this-week">This week</Option>
-                <Option value="unsorted">Unsorted</Option>
+              <Select placeholder={`Please select a project`}>
+                {projectsOptions}
               </Select>
             )}
           </FormItem>

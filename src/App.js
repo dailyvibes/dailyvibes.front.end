@@ -7,7 +7,6 @@ import WrappedNormalLoginForm from './NormalLoginForm';
 import ForgotPasswordForm from './ForgotPassword';
 import Home from './HomeComponent';
 import About from './AboutComponent';
-import Dashboard from './DashboardComponent';
 import Settings from './SettingsComponent';
 import ProjectsComponent from './components/ProjectsComponent';
 
@@ -88,9 +87,6 @@ class App extends React.Component {
               <Menu.Item key="logout">
                 <Link to="/logout">Logout</Link>
               </Menu.Item>
-              <Menu.Item key="dashboard">
-                <Link to="/dashboard">Dashboard</Link>
-              </Menu.Item>
               <Menu.Item key="projects">
                 <Link to="/projects">Projects</Link>
               </Menu.Item>
@@ -117,7 +113,6 @@ class App extends React.Component {
               <Route path="/about" component={About} />
               <Route path="/login" component={Login} />
               <Route path="/forgot" component={ForgotPasswordForm} />
-              <Route path="/dashboard" component={Dashboard} />
               <Route path="/settings" component={Settings} />
               <Route path="/projects" component={ProjectsComponent} />
             </div>

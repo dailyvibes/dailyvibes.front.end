@@ -1,9 +1,7 @@
 import React, { Component } from 'react';
-import { Form, Input, Button, Switch, Select } from 'antd';
-import { DatePicker } from 'antd';
+import { Form, Input, Button } from 'antd';
 
 const FormItem = Form.Item;
-const Option = Select.Option;
 
 class _DVNewProjectComponent extends Component {
   handleSubmit = e => {
@@ -33,10 +31,6 @@ class _DVNewProjectComponent extends Component {
         xs: { span: 24 },
         sm: { span: 16 }
       }
-    };
-
-    const config = {
-      rules: [{ type: 'object', message: 'Please select time!' }]
     };
 
     return (

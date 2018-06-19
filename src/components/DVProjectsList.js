@@ -1,11 +1,11 @@
 import React from 'react';
-import { Link, Route } from 'react-router-dom';
-import { withRouter, Redirect } from 'react-router';
+import { Route } from 'react-router-dom';
+import { withRouter } from 'react-router';
 
 import DVProjectList from './DVProjectList';
 import DVNewProjectComponent from './DVNewProjectComponent';
 
-import { Menu, Dropdown, Icon, Button } from 'antd';
+import { Icon, Button } from 'antd';
 
 import { Select } from 'antd';
 const Option = Select.Option;
@@ -16,6 +16,7 @@ class DVProjectsList extends React.Component {
 
     this.handleChange = this.handleChange.bind(this);
     this.handleAddProject = this.handleAddProject.bind(this);
+    this.handleProjectCreateCancel = this.handleProjectCreateCancel.bind(this);
 
     this.state = {
       projects: [
@@ -57,15 +58,21 @@ class DVProjectsList extends React.Component {
     }
   }
 
-  handleAdd() {
-    const { projects } = this.state;
-    const newData = {
-      uuid: '64d0bff3-e35e-4e9f-a27c-e06cb5867775',
-      name: `Building layout components for specific use cases`
-    };
+  // handleAdd() {
+  //   const { projects } = this.state;
+  //   const newData = {
+  //     uuid: '64d0bff3-e35e-4e9f-a27c-e06cb5867775',
+  //     name: `Building layout components for specific use cases`
+  //   };
 
+  //   this.setState({
+  //     projects: [...projects, newData]
+  //   });
+  // }
+
+  handleProjectCreateCancel() {
     this.setState({
-      projects: [...projects, newData]
+      showAddProject: false
     });
   }
 
@@ -98,24 +105,32 @@ class DVProjectsList extends React.Component {
       <div>
         <h2>Projects</h2>
         {button}
-        {showAddProject && <DVNewProjectComponent />}
-        <Select
-          labelInValue
-          style={{ width: '100%' }}
-          onChange={this.handleChange}
-          placeholder="Please select a project."
-        >
-          {selectionProjects}
-        </Select>
-        <Route
-          path={`${match.url}/:projectUUID`}
-          component={withRouter(DVProjectList)}
-        />
-        <Route
-          exact
-          path={match.url}
-          render={() => <h3>👆 Please select a project. 👆</h3>}
-        />
+        {showAddProject ? (
+          <React.Fragment>
+            <DVNewProjectComponent />
+            <Button
+              style={{ marginLeft: 8 }}
+              onClick={this.handleProjectCreateCancel}
+            >
+              Cancel
+            </Button>
+          </React.Fragment>
+        ) : (
+          <React.Fragment>
+            <Select
+              labelInValue
+              style={{ width: '100%' }}
+              onChange={this.handleChange}
+              placeholder="Please select a project."
+            >
+              {selectionProjects}
+            </Select>
+            <Route
+              path={`${match.url}/:projectUUID`}
+              component={withRouter(DVProjectList)}
+            />
+          </React.Fragment>
+        )}
       </div>
     );
   }

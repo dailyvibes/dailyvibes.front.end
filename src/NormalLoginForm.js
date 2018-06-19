@@ -3,12 +3,11 @@ import './NormalLoginForm.css';
 
 import { Link } from 'react-router-dom';
 
-import { Form, Icon, Input, Button, Tabs, Row, Col } from 'antd';
+import { Form, Icon, Input, Button, Row, Col } from 'antd';
 
 import PageHeader from 'ant-design-pro/lib/PageHeader';
 
 const FormItem = Form.Item;
-const TabPane = Tabs.TabPane;
 
 class NormalLoginForm extends React.Component {
   constructor(props) {
@@ -63,64 +62,31 @@ class NormalLoginForm extends React.Component {
               className="login-form"
               style={{ margin: '1rem 0' }}
             >
-              <Tabs defaultActiveKey="1" onChange={this.handleSwitchChange}>
-                <TabPane tab="Login via Username" key="1">
-                  <FormItem
-                    label="username"
-                    labelCol={{ span: 5 }}
-                    wrapperCol={{ span: 12 }}
-                  >
-                    {getFieldDecorator('userName', {
-                      rules: [
-                        {
-                          required: false,
-                          message: 'Please input your username!'
-                        }
-                      ]
-                    })(
-                      <Input
-                        prefix={
-                          <Icon
-                            type="user"
-                            style={{ color: 'rgba(0,0,0,.25)' }}
-                          />
-                        }
-                        placeholder="Username"
-                      />
-                    )}
-                  </FormItem>
-                </TabPane>
-                <TabPane tab="Login via Email" key="2">
-                  <FormItem
-                    label="E-mail"
-                    labelCol={{ span: 5 }}
-                    wrapperCol={{ span: 12 }}
-                  >
-                    {getFieldDecorator('email', {
-                      rules: [
-                        {
-                          type: 'email',
-                          message: 'The input is not valid E-mail!'
-                        },
-                        {
-                          required: false,
-                          message: 'Please input your E-mail!'
-                        }
-                      ]
-                    })(
-                      <Input
-                        prefix={
-                          <Icon
-                            type="mail"
-                            style={{ color: 'rgba(0,0,0,.25)' }}
-                          />
-                        }
-                        placeholder="Email"
-                      />
-                    )}
-                  </FormItem>
-                </TabPane>
-              </Tabs>
+              <FormItem
+                label="E-mail"
+                labelCol={{ span: 5 }}
+                wrapperCol={{ span: 12 }}
+              >
+                {getFieldDecorator('email', {
+                  rules: [
+                    {
+                      type: 'email',
+                      message: 'The input is not valid E-mail!'
+                    },
+                    {
+                      required: false,
+                      message: 'Please input your E-mail!'
+                    }
+                  ]
+                })(
+                  <Input
+                    prefix={
+                      <Icon type="mail" style={{ color: 'rgba(0,0,0,.25)' }} />
+                    }
+                    placeholder="Email"
+                  />
+                )}
+              </FormItem>
               <FormItem
                 label="Password"
                 labelCol={{ span: 5 }}
