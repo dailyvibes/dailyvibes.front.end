@@ -6,7 +6,7 @@ const FormItem = Form.Item;
 const Option = Select.Option;
 const { TextArea } = Input;
 
-class DVNewTaskComponent extends Component {
+class TaskViewComponent extends Component {
   constructor(props) {
     super(props);
 
@@ -14,6 +14,7 @@ class DVNewTaskComponent extends Component {
       ownedBy: this.props.ownedBy
     };
   }
+
   handleSubmit = e => {
     e.preventDefault();
     this.props.form.validateFields((err, values) => {
@@ -29,6 +30,7 @@ class DVNewTaskComponent extends Component {
       }
     });
   };
+
   render() {
     const { getFieldDecorator } = this.props.form;
     const { ownedBy } = this.state;
@@ -149,6 +151,6 @@ class DVNewTaskComponent extends Component {
   }
 }
 
-const NewTaskComponent = Form.create()(DVNewTaskComponent);
+const DVTaskViewComponent = Form.create()(TaskViewComponent);
 
-export default NewTaskComponent;
+export default DVTaskViewComponent;

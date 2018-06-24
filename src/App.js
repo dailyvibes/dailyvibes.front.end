@@ -9,6 +9,7 @@ import Home from './HomeComponent';
 import About from './AboutComponent';
 import Settings from './SettingsComponent';
 import ProjectsComponent from './components/ProjectsComponent';
+import DVTaskComponent from './components/DVTaskComponent';
 
 import GlobalFooter from 'ant-design-pro/lib/GlobalFooter';
 
@@ -115,6 +116,7 @@ class App extends React.Component {
               <Route path="/forgot" component={ForgotPasswordForm} />
               <Route path="/settings" component={Settings} />
               <Route path="/projects" component={ProjectsComponent} />
+              <Route path="/task/:uuid" component={DVTaskComponent} />
             </div>
           </Content>
           <Footer style={{ overflow: 'hidden' }}>
