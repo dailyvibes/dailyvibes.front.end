@@ -1,7 +1,12 @@
 import React from 'react';
 import './App.css';
-import { BrowserRouter as Router, Route, Link } from 'react-router-dom';
-import { Layout, Menu, Icon, Avatar } from 'antd';
+import {
+  BrowserRouter as Router,
+  Route,
+  Link,
+  Redirect
+} from 'react-router-dom';
+import { Layout, Icon } from 'antd';
 
 import WrappedNormalLoginForm from './NormalLoginForm';
 import ForgotPasswordForm from './ForgotPassword';
@@ -9,11 +14,16 @@ import Home from './HomeComponent';
 import About from './AboutComponent';
 import Settings from './SettingsComponent';
 import ProjectsComponent from './components/ProjectsComponent';
-import DVTaskComponent from './components/DVTaskComponent';
+import { DVTaskComponent } from './components/DVTaskComponent';
+import DVHeaderComponent from './components/DVHeaderComponent';
+import { DVLogoutComponent } from './components/DVLogoutComponent';
+
+import { UserContextWrapper, UserContext } from './context/UserContext';
+import { DVPrivateRoute } from './utils/PrivateRoute';
 
 import GlobalFooter from 'ant-design-pro/lib/GlobalFooter';
 
-const { Header, Content, Footer } = Layout;
+const { Content, Footer } = Layout;
 
 const Login = () => (
   <div>
@@ -49,82 +59,42 @@ const copyright = (
 );
 
 class App extends React.Component {
-  constructor(props) {
-    super(props);
-    this.handleMenuClick = this.handleMenuClick.bind(this);
-    this.state = {
-      current: 'home'
-    };
-  }
-
-  handleMenuClick(event) {
-    this.setState({
-      current: event.key
-    });
-  }
-
   render() {
     return (
-      <Router>
-        <Layout className="layout" style={{ minHeight: '100vh' }}>
-          <Header>
-            <Menu
-              onClick={this.handleMenuClick}
-              theme="dark"
-              mode="horizontal"
-              selectedKeys={[this.state.current]}
-              style={{
-                lineHeight: '64px',
-                display: 'flex',
-                justifyContent: 'space-between'
-              }}
-            >
-              <Menu.Item key="home">
-                <Link to="/">Daily Vibes</Link>
-              </Menu.Item>
-              <Menu.Item key="login">
-                <Link to="/login">Login</Link>
-              </Menu.Item>
-              <Menu.Item key="logout">
-                <Link to="/logout">Logout</Link>
-              </Menu.Item>
-              <Menu.Item key="projects">
-                <Link to="/projects">Projects</Link>
-              </Menu.Item>
-              <Menu.Item key="settings">
-                <Link to="/settings">
-                  <Avatar
-                    style={{ color: '#f56a00', backgroundColor: '#ffffff' }}
-                  >
-                    U
-                  </Avatar>
-                </Link>
-              </Menu.Item>
-            </Menu>
-          </Header>
-          <Content style={{ margin: '24px 24px 0', height: '100%' }}>
-            <div
-              style={{
-                padding: 24,
-                background: '#fff',
-                minHeight: 'calc(100vh - 20vh)'
-              }}
-            >
-              <Route exact path="/" component={Home} />
-              <Route path="/about" component={About} />
-              <Route path="/login" component={Login} />
-              <Route path="/forgot" component={ForgotPasswordForm} />
-              <Route path="/settings" component={Settings} />
-              <Route path="/projects" component={ProjectsComponent} />
-              <Route path="/task/:uuid" component={DVTaskComponent} />
-            </div>
-          </Content>
-          <Footer style={{ overflow: 'hidden' }}>
-            {/* <div style={{ height: 280 }} /> */}
-            <GlobalFooter links={links} copyright={copyright} />
-          </Footer>
-        </Layout>
-      </Router>
+      <UserContextWrapper>
+        <Router>
+          <Layout className="layout" style={{ minHeight: '100vh' }}>
+            <DVHeaderComponent />
+            <Content style={{ margin: '24px 24px 0', height: '100%' }}>
+              <div
+                style={{
+                  padding: 24,
+                  background: '#fff',
+                  minHeight: 'calc(100vh - 20vh)'
+                }}
+              >
+                <Route exact path="/" component={Home} />
+                <Route path="/about" component={About} />
+                <Route path="/login" component={Login} />
+                <Route path="/logout" component={DVLogoutComponent} />
+                <Route path="/forgot" component={ForgotPasswordForm} />
+                <DVPrivateRoute
+                  path="/projects"
+                  component={ProjectsComponent}
+                />
+                <DVPrivateRoute path="/settings" component={Settings} />
+                <DVPrivateRoute
+                  path="/tasks/:uuid"
+                  component={DVTaskComponent}
+                />
+              </div>
+            </Content>
+            <Footer style={{ overflow: 'hidden' }}>
+              <GlobalFooter links={links} copyright={copyright} />
+            </Footer>
+          </Layout>
+        </Router>
+      </UserContextWrapper>
     );
   }
 }

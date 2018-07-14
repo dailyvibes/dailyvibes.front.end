@@ -4,7 +4,7 @@ import { Route, withRouter } from 'react-router-dom';
 
 import 'antd/dist/antd.css';
 
-import DVProjectsList from './DVProjectsList';
+import { DVProjectsList } from './DVProjectsList';
 
 class ProjectsComponent extends React.Component {
   render() {

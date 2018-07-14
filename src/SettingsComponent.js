@@ -1,19 +1,107 @@
-import React from 'react';
+import React, { Component } from 'react';
 
 import { Row, Col, Divider, Badge, Tooltip } from 'antd';
-import { Form, Icon, Input, Button } from 'antd';
+import { Form, Icon, Input, Button, message } from 'antd';
+import { UserContext } from './context/UserContext';
 
 const FormItem = Form.Item;
 
-class DVSettings extends React.Component {
+class DVSettings extends Component {
+  constructor(props) {
+    super(props);
+    // console.log('DVSettings:', props);
+
+    this.state = {
+      currentUser: props.currentUser,
+      jwt: props.currentUser.jwt,
+      signOut: props.signOut,
+      _updateToken: props._updateToken
+    };
+  }
+
   handleSubmit = e => {
     e.preventDefault();
     this.props.form.validateFields((err, values) => {
       if (!err) {
-        console.log('Received values of form: ', values);
+        // console.log('Received values of form: ', values);
+        const { email, password } = values;
+        const request = { user: { email: email, password: password } };
+        const url = `http://localhost:5000/api/users/${
+          this.state.currentUser.id
+        }`;
+
+        fetch(url, {
+          method: 'PATCH',
+          mode: 'cors',
+          cache: 'no-cache',
+          headers: {
+            'Content-Type': 'application/json; charset=utf-8',
+            Authorization: `Bearer ${this.state.jwt}`
+            // 'X-CSRF-Token': this.state.csrf
+          },
+          redirect: 'follow',
+          referrer: 'no-referrer',
+          body: JSON.stringify(request)
+        })
+          .then(response => {
+            switch (response.status) {
+              case 403:
+                message.warning('Please try again');
+                return;
+              case 200:
+                // response.headers.forEach((val, key) => {
+                //   console.log(key, val);
+                // });
+                const newToken = response.headers.get('authorization');
+
+                this.state._updateToken(newToken);
+                message.success('Saved');
+
+                return response.json();
+              default:
+                return;
+            }
+          })
+          .catch(error => {
+            message.error('Error!!!');
+            console.log(error);
+          });
       }
     });
   };
+
+  // componentDidMount() {
+  //   let url = `http://localhost:5000/api/current`;
+  //   fetch(url, {
+  //     headers: {
+  //       Authorization: `Bearer ${this.state.jwt}`
+  //     }
+  //   })
+  //     .then(response => {
+  //       switch (response.status) {
+  //         case 401:
+  //           this.state.signOut();
+  //           return;
+  //         case 200:
+  //           return response.json();
+  //         default:
+  //           return;
+  //       }
+  //     })
+  //     .then(json => {
+  //       // console.log(json);
+  //       if (json && json.email && json.id) {
+  //         this.setState({
+  //           email: json.email,
+  //           uID: json.id,
+  //           role: json.role,
+  //           admin: json.admin
+  //         });
+  //       }
+  //     })
+  //     .catch(error => console.error(error));
+  // }
+
   render() {
     const { getFieldDecorator } = this.props.form;
     return (
@@ -26,23 +114,6 @@ class DVSettings extends React.Component {
               className="login-form"
               style={{ margin: '1rem 0' }}
             >
-              <FormItem
-                labelCol={{ span: 5 }}
-                wrapperCol={{ span: 12 }}
-                label="Membership"
-              >
-                <span className="ant-form-text">
-                  <Badge status="success" text="Admin" />
-                  <Divider type="vertical" />
-                  <Badge status="success" text="Kickstart Backer" />
-                  <Divider type="vertical" />
-                  <Badge status="success" text="Premium" />
-                  <Divider type="vertical" />
-                  <Badge status="processing" text="Guest" />
-                  <Divider type="vertical" />
-                  <Badge status="warning" text="Timed Trial" />
-                </span>
-              </FormItem>
               <FormItem
                 label={
                   <span>
@@ -80,7 +151,7 @@ class DVSettings extends React.Component {
                       message: 'The input is not valid E-mail!'
                     },
                     {
-                      required: false,
+                      required: true,
                       message: 'Please input your E-mail!'
                     }
                   ]
@@ -146,5 +217,88 @@ class DVSettings extends React.Component {
   }
 }
 
-const Settings = Form.create()(DVSettings);
-export default Settings;
+const Settings = Form.create({
+  // onFieldsChange(props, changedFields) {
+  //   props.onChange(changedFields);
+  // },
+  mapPropsToFields(props) {
+    // console.log('mapPropsToFields', props);
+    return {
+      email: Form.createFormField({
+        ...props.email,
+        value: props.email.value
+      })
+    };
+  }
+  // onValuesChange(_, values) {
+  //   console.log(values);
+  // }
+})(DVSettings);
+
+class DVUserSettings extends Component {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      jwt: props.currentUser.jwt
+    };
+  }
+  componentDidMount() {
+    let url = `http://localhost:5000/api/current`;
+    fetch(url, {
+      headers: {
+        Authorization: `Bearer ${this.state.jwt}`
+      }
+    })
+      .then(response => {
+        switch (response.status) {
+          case 401:
+            this.state.signOut();
+            return;
+          case 200:
+            return response.json();
+          default:
+            return;
+        }
+      })
+      .then(json => {
+        if (json && json.email && json.id) {
+          this.setState({
+            email: json.email,
+            uID: json.id,
+            role: json.role,
+            admin: json.admin
+          });
+        }
+      })
+      .catch(error => console.error(error));
+  }
+
+  render() {
+    return (
+      <UserContext.Consumer>
+        {state => (
+          <Settings {...this.props} email={{ value: this.state.email }} />
+        )}
+      </UserContext.Consumer>
+    );
+  }
+}
+
+class UserSettings extends React.Component {
+  render() {
+    return (
+      <UserContext.Consumer>
+        {state => (
+          <DVUserSettings
+            currentUser={state.currentUser}
+            signOut={state.signOut}
+            _updateToken={state._updateToken}
+          />
+        )}
+      </UserContext.Consumer>
+    );
+  }
+}
+
+export default UserSettings;

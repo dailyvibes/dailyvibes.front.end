@@ -9,10 +9,7 @@ class _DVNewProjectComponent extends Component {
     this.props.form.validateFields((err, values) => {
       if (!err) {
         const fieldValues = {
-          ...values,
-          'date-time-picker': values['date-time-picker'].format(
-            'YYYY-MM-DD HH:mm:ss'
-          )
+          ...values
         };
 
         console.log('Received values of form: ', fieldValues);

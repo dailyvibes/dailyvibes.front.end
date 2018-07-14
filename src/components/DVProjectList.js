@@ -1,29 +1,14 @@
-import React from 'react';
+import React, { Component } from 'react';
+
+import { Route, withRouter } from 'react-router-dom';
 
 import { Table, Icon, Button, Popconfirm, Divider } from 'antd';
 import 'antd/dist/antd.css';
 
 import DVNewTaskComponent from './DVNewTaskComponent';
+import { UserContext } from '../context/UserContext';
 
-const dataSource = [
-  {
-    name: 'Functional and Class Components',
-    uuid: '08799e85-34cb-4c9a-94b1-1de61ca3f27f',
-    key: '08799e85-34cb-4c9a-94b1-1de61ca3f27f'
-  },
-  {
-    name: 'Rendering a Component',
-    uuid: 'cd7640ca-dcf5-452c-96ed-36a303595def',
-    key: 'cd7640ca-dcf5-452c-96ed-36a303595def'
-  },
-  {
-    name: 'Composing Components',
-    uuid: '0eaab8f5-3283-41f8-b9f9-b77a3d45134d',
-    key: '0eaab8f5-3283-41f8-b9f9-b77a3d45134d'
-  }
-];
-
-class DVProjectList extends React.Component {
+class ProjectList extends Component {
   constructor(props) {
     super(props);
 
@@ -32,8 +17,30 @@ class DVProjectList extends React.Component {
 
     this.state = {
       projectUUID: props.match.params.projectUUID,
-      showAddTask: false
+      tasks: [],
+      showAddTask: false,
+      jwt: props.jwt
     };
+  }
+
+  componentDidMount() {
+    const { projectUUID } = this.state;
+    let url = `http://localhost:5000/api/lists/${projectUUID}`;
+    fetch(url, {
+      headers: {
+        Authorization: `Bearer ${this.state.jwt}`
+      }
+    })
+      .then(response => response.json())
+      .then(json => {
+        if (!!json.todotask_items) {
+          this.setState({
+            tasks: json.todotask_items
+          });
+        }
+        console.log(json);
+      })
+      .catch(error => console.error(error));
   }
 
   handleAddTask() {
@@ -45,19 +52,19 @@ class DVProjectList extends React.Component {
   }
 
   render() {
-    const { showAddTask, projectUUID } = this.state;
+    const { showAddTask, projectUUID, tasks } = this.state;
     let button;
 
-    console.log(projectUUID);
+    // console.log(projectUUID);
 
     const columns = [
       {
-        title: 'Name',
-        dataIndex: 'name',
-        key: 'name',
+        title: 'Task',
+        dataIndex: 'title',
+        key: 'title',
         render: (text, record) => (
-          <a href={`/task/${record.uuid}`} title={record.name}>
-            {record.name}
+          <a href={`/tasks/${record.id}`} title={record.title} key={record.id}>
+            {record.title}
           </a>
         )
       },
@@ -67,11 +74,21 @@ class DVProjectList extends React.Component {
         render: (text, record) => (
           <span>
             <Popconfirm title="Are you sure？" okText="Yes" cancelText="No">
-              <a href={`/task/${record.uuid}/delete`}>Delete</a>
+              <a
+                href={`http://localhost:5000/api/tasks/${record.id}/delete`}
+                key={record.id}
+              >
+                Delete
+              </a>
             </Popconfirm>
             <Divider type="vertical" />
             <Popconfirm title="Are you sure？" okText="Yes" cancelText="No">
-              <a href={`/task/${record.uuid}/archive`}>Archive</a>
+              <a
+                href={`http://localhost:5000/api/tasks/${record.id}/archive`}
+                key={record.id}
+              >
+                Archive
+              </a>
             </Popconfirm>
           </span>
         )
@@ -103,11 +120,29 @@ class DVProjectList extends React.Component {
             </Button>
           </React.Fragment>
         ) : (
-          <Table dataSource={dataSource} columns={columns} />
+          <Table
+            dataSource={tasks}
+            columns={columns}
+            rowKey={record => record.id}
+          />
         )}
       </div>
     );
   }
 }
 
-export default DVProjectList;
+// export default ProjectList;
+
+const WrappedProjectList = withRouter(ProjectList);
+
+class DVProjectList extends Component {
+  render() {
+    return (
+      <UserContext.Consumer>
+        {state => <WrappedProjectList jwt={state.currentUser.jwt} />}
+      </UserContext.Consumer>
+    );
+  }
+}
+
+export { DVProjectList };

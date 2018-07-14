@@ -1,16 +1,17 @@
-import React from 'react';
+import React, { Component } from 'react';
 import { Route } from 'react-router-dom';
 import { withRouter } from 'react-router';
 
-import DVProjectList from './DVProjectList';
+import { DVProjectList } from './DVProjectList';
 import DVNewProjectComponent from './DVNewProjectComponent';
 
 import { Icon, Button } from 'antd';
 
 import { Select } from 'antd';
+import { UserContext } from '../context/UserContext';
 const Option = Select.Option;
 
-class DVProjectsList extends React.Component {
+class ProjectsList extends Component {
   constructor(props) {
     super(props);
 
@@ -19,31 +20,29 @@ class DVProjectsList extends React.Component {
     this.handleProjectCreateCancel = this.handleProjectCreateCancel.bind(this);
 
     this.state = {
-      projects: [
-        {
-          name: 'Inbox',
-          uuid: '73b0bba1-d38a-417b-934f-ab4655e66439'
-        },
-        {
-          name: 'Today',
-          uuid: '28111558-dc23-4a01-8113-560c7994f59a'
-        },
-        {
-          name: 'This week',
-          uuid: '17c56e12-1fad-490e-aa4f-8ee292495166'
-        },
-        {
-          name: 'Unsorted',
-          uuid: 'b7d60a41-af99-4c60-8ab1-bf4655c2f53f'
-        },
-        {
-          name: 'Archived',
-          uuid: '5aead042-0231-47e6-8314-5d938c6d57c0'
-        }
-      ],
+      projects: [],
       selectedProject: undefined,
-      showAddProject: false
+      showAddProject: false,
+      jwt: props.jwt
     };
+  }
+
+  componentDidMount() {
+    const url = `http://localhost:5000/api/lists`;
+
+    fetch(url, {
+      headers: {
+        Authorization: `Bearer ${this.state.jwt}`
+      }
+    })
+      .then(response => response.json())
+      .then(json => {
+        this.setState({
+          projects: json
+        });
+        console.log(json);
+      })
+      .catch(error => console.error(error));
   }
 
   handleAddProject() {
@@ -95,8 +94,8 @@ class DVProjectsList extends React.Component {
 
     let selectionProjects = projects.map(function(project) {
       return (
-        <Option value={project.uuid} key={project.uuid}>
-          {project.name}
+        <Option value={project.id} key={project.id}>
+          {project.title}
         </Option>
       );
     });
@@ -136,4 +135,19 @@ class DVProjectsList extends React.Component {
   }
 }
 
-export default withRouter(DVProjectsList);
+const WrappedProjectsList = withRouter(ProjectsList);
+
+class DVProjectsList extends Component {
+  render() {
+    return (
+      <UserContext.Consumer>
+        {state => (
+          <WrappedProjectsList {...this.props} jwt={state.currentUser.jwt} />
+        )}
+      </UserContext.Consumer>
+    );
+  }
+}
+
+// export default withRouter(ProjectsList);
+export { DVProjectsList };
