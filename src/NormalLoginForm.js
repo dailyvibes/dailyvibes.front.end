@@ -64,7 +64,8 @@ class NormalLoginForm extends React.Component {
   };
 
   componentDidMount() {
-    let url = `http://localhost:5000/api/session/csrf`;
+    const url = `http://localhost:5000/api/session/csrf`;
+
     fetch(url)
       .then(response => response.json())
       .then(json => {

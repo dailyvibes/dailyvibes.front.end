@@ -8,6 +8,7 @@ import { UserContext } from '../context/UserContext';
 class TaskComponent extends Component {
   constructor(props) {
     super(props);
+
     this.state = {
       uuid: props.match.params.uuid,
       task: {},

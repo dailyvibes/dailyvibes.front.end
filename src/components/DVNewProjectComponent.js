@@ -1,22 +1,74 @@
 import React, { Component } from 'react';
 import { Form, Input, Button } from 'antd';
+import { UserContext } from '../context/UserContext';
+import { Redirect, withRouter } from 'react-router-dom';
 
 const FormItem = Form.Item;
 
 class _DVNewProjectComponent extends Component {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      jwt: props.currentUser.jwt,
+      toProjects: false
+    };
+  }
+
   handleSubmit = e => {
     e.preventDefault();
     this.props.form.validateFields((err, values) => {
       if (!err) {
-        const fieldValues = {
-          ...values
-        };
+        const { title } = values;
+        const request = { list: { title: title } };
+        const url = `http://localhost:5000/api/lists`;
 
-        console.log('Received values of form: ', fieldValues);
+        fetch(url, {
+          method: 'POST',
+          mode: 'cors',
+          cache: 'no-cache',
+          headers: {
+            'Content-Type': 'application/json; charset=utf-8',
+            Authorization: `Bearer ${this.state.jwt}`,
+            'X-CSRF-Token': this.state.csrf
+          },
+          body: JSON.stringify(request)
+        })
+          .then(response => response.json())
+          .then(json => {
+            if (json && json.id) {
+              // this.props.history.push(`/projects/${json.id}`);
+              this.setState({
+                toProjects: true,
+                projectId: json.id
+              });
+            }
+          })
+          .catch(error => console.log(error));
       }
     });
   };
+
+  componentDidMount() {
+    const url = `http://localhost:5000/api/session/csrf`;
+
+    fetch(url)
+      .then(response => response.json())
+      .then(json => {
+        if (json && json.csrf) {
+          this.setState({
+            csrf: json.csrf
+          });
+        }
+      })
+      .catch(error => console.error(error));
+  }
+
   render() {
+    if (this.state.toProjects === true) {
+      return <Redirect to={`/projects/${this.state.projectId}`} />;
+    }
+
     const { getFieldDecorator } = this.props.form;
 
     const formItemLayout = {
@@ -56,6 +108,22 @@ class _DVNewProjectComponent extends Component {
   }
 }
 
-const DVNewProjectComponent = Form.create()(_DVNewProjectComponent);
+const __DVNewProjectComponent = Form.create()(_DVNewProjectComponent);
+const DVNewProjectComponent = withRouter(__DVNewProjectComponent);
 
-export default DVNewProjectComponent;
+// export default DVNewProjectComponent;
+
+export default class NewProjectComponent extends Component {
+  render() {
+    return (
+      <UserContext.Consumer>
+        {state => (
+          <DVNewProjectComponent
+            {...this.props}
+            currentUser={state.currentUser}
+          />
+        )}
+      </UserContext.Consumer>
+    );
+  }
+}
