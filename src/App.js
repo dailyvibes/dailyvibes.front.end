@@ -18,7 +18,7 @@ import { DVTaskComponent } from './components/DVTaskComponent';
 import DVHeaderComponent from './components/DVHeaderComponent';
 import { DVLogoutComponent } from './components/DVLogoutComponent';
 
-import { UserContextWrapper, UserContext } from './context/UserContext';
+import { UserContextWrapper } from './context/UserContext';
 import { DVPrivateRoute } from './utils/PrivateRoute';
 
 import GlobalFooter from 'ant-design-pro/lib/GlobalFooter';

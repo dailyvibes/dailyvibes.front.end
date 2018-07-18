@@ -111,7 +111,7 @@ class ProjectList extends Component {
         {button}
         {showAddTask ? (
           <React.Fragment>
-            <DVNewTaskComponent ownedBy={projectUUID} />
+            <DVNewTaskComponent {...this.props} ownedBy={projectUUID} />
             <Button
               style={{ marginBottom: '1em' }}
               onClick={this.handleTaskCreateCancel}
@@ -139,7 +139,9 @@ class DVProjectList extends Component {
   render() {
     return (
       <UserContext.Consumer>
-        {state => <WrappedProjectList jwt={state.currentUser.jwt} />}
+        {state => (
+          <WrappedProjectList {...this.props} jwt={state.currentUser.jwt} />
+        )}
       </UserContext.Consumer>
     );
   }

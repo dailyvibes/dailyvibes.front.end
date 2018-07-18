@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
+import { withRouter } from 'react-router-dom';
 import { Form, Input, Button, Switch, Select } from 'antd';
 import { DatePicker } from 'antd';
+import { UserContext } from '../context/UserContext';
 
 const FormItem = Form.Item;
 const Option = Select.Option;
@@ -11,7 +13,9 @@ class DVNewTaskComponent extends Component {
     super(props);
 
     this.state = {
-      ownedBy: this.props.ownedBy
+      ownedBy: props.ownedBy,
+      currentUser: props.currentUser,
+      jwt: props.jwt
     };
   }
   handleSubmit = e => {
@@ -20,15 +24,50 @@ class DVNewTaskComponent extends Component {
       if (!err) {
         const fieldValues = {
           ...values,
-          'date-time-picker': values['date-time-picker'].format(
-            'YYYY-MM-DD HH:mm:ss'
-          )
+          tags: values['tags'].toString(),
+          duedate_at: values['duedate_at'].utc().format()
         };
 
-        console.log('Received values of form: ', fieldValues);
+        let request = { task: { ...fieldValues } };
+        let url = `http://localhost:5000/api/tasks`;
+
+        fetch(url, {
+          method: 'POST',
+          mode: 'cors',
+          cache: 'no-cache',
+          headers: {
+            'Content-Type': 'application/json; charset=utf-8',
+            Authorization: `Bearer ${this.state.jwt}`,
+            'X-CSRF-Token': this.state.csrf
+          },
+          body: JSON.stringify(request)
+        })
+          .then(response => response.json())
+          .then(json => {
+            console.log(json);
+          })
+          .catch(error => console.log(request));
+
+        // console.log('Received values of form: ', fieldValues);
       }
     });
   };
+
+  componentDidMount() {
+    const url = `http://localhost:5000/api/session/csrf`;
+
+    fetch(url)
+      .then(response => response.json())
+      .then(json => {
+        if (json && json.csrf) {
+          this.setState({
+            csrf: json.csrf
+          });
+        }
+      })
+      .catch(error => console.error(error));
+  }
+
   render() {
     const { getFieldDecorator } = this.props.form;
     const { ownedBy } = this.state;
@@ -95,12 +134,12 @@ class DVNewTaskComponent extends Component {
             })(<Input />)}
           </FormItem>
           <FormItem {...formItemLayout} label="Due">
-            {getFieldDecorator('date-time-picker', config)(
+            {getFieldDecorator('duedate_at', config)(
               <DatePicker showTime format="YYYY-MM-DD HH:mm:ss" />
             )}
           </FormItem>
           <FormItem {...formItemLayout} label="Remind me">
-            {getFieldDecorator('remindMe', { valuePropName: 'checked' })(
+            {getFieldDecorator('remindable', { valuePropName: 'checked' })(
               <Switch />
             )}
           </FormItem>
@@ -151,4 +190,20 @@ class DVNewTaskComponent extends Component {
 
 const NewTaskComponent = Form.create()(DVNewTaskComponent);
 
-export default NewTaskComponent;
+const WrappedNewTaskComponent = withRouter(NewTaskComponent);
+
+export default class extends Component {
+  render() {
+    return (
+      <UserContext.Consumer>
+        {state => (
+          <WrappedNewTaskComponent
+            {...this.props}
+            currentUser={state.currentUser}
+            jwt={state.getToken()}
+          />
+        )}
+      </UserContext.Consumer>
+    );
+  }
+}
