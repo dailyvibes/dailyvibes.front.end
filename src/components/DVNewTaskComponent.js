@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
-import { withRouter } from 'react-router-dom';
+import { withRouter, Redirect } from 'react-router-dom';
 import { Form, Input, Button, Switch, Select } from 'antd';
-import { DatePicker } from 'antd';
+import { DatePicker, message } from 'antd';
 import { UserContext } from '../context/UserContext';
 
 const FormItem = Form.Item;
@@ -15,7 +15,10 @@ class DVNewTaskComponent extends Component {
     this.state = {
       ownedBy: props.ownedBy,
       currentUser: props.currentUser,
-      jwt: props.jwt
+      jwt: props.jwt,
+      projects: [],
+      taskSaved: false,
+      taskRedirectId: ''
     };
   }
   handleSubmit = e => {
@@ -44,9 +47,20 @@ class DVNewTaskComponent extends Component {
         })
           .then(response => response.json())
           .then(json => {
-            console.log(json);
+            if (json && json.id) {
+              message.success('Created!');
+
+              this.setState({
+                taskSaved: true,
+                taskRedirectId: json.id
+              });
+            }
           })
-          .catch(error => console.log(request));
+          .catch(error => {
+            message.warning('Please try again');
+
+            console.log(request);
+          });
 
         // console.log('Received values of form: ', fieldValues);
       }
@@ -66,39 +80,35 @@ class DVNewTaskComponent extends Component {
         }
       })
       .catch(error => console.error(error));
+
+    const listsUrl = `http://localhost:5000/api/lists`;
+
+    fetch(listsUrl, {
+      headers: {
+        Authorization: `Bearer ${this.state.jwt}`
+      }
+    })
+      .then(response => response.json())
+      .then(json => {
+        this.setState({
+          projects: json
+        });
+      })
+      .catch(error => console.error(error));
   }
 
   render() {
     const { getFieldDecorator } = this.props.form;
-    const { ownedBy } = this.state;
+    const { ownedBy, projects, taskSaved, taskRedirectId } = this.state;
 
-    const projects = [
-      {
-        name: 'Inbox',
-        uuid: '73b0bba1-d38a-417b-934f-ab4655e66439'
-      },
-      {
-        name: 'Today',
-        uuid: '28111558-dc23-4a01-8113-560c7994f59a'
-      },
-      {
-        name: 'This week',
-        uuid: '17c56e12-1fad-490e-aa4f-8ee292495166'
-      },
-      {
-        name: 'Unsorted',
-        uuid: 'b7d60a41-af99-4c60-8ab1-bf4655c2f53f'
-      },
-      {
-        name: 'Archived',
-        uuid: '5aead042-0231-47e6-8314-5d938c6d57c0'
-      }
-    ];
+    if (taskSaved) {
+      return <Redirect to={`/tasks/${taskRedirectId}`} />;
+    }
 
     const projectsOptions = projects.map(function(project) {
       return (
-        <Option value={project.uuid} key={project.uuid}>
-          {project.name}
+        <Option value={project.id} key={project.id}>
+          {project.title}
         </Option>
       );
     });
@@ -188,7 +198,17 @@ class DVNewTaskComponent extends Component {
   }
 }
 
-const NewTaskComponent = Form.create()(DVNewTaskComponent);
+const NewTaskComponent = Form.create({
+  // mapPropsToFields(props) {
+  //   console.log('mapPropsToFields', props);
+  //   // return {
+  //   //   email: Form.createFormField({
+  //   //     ...props.email,
+  //   //     value: props.email.value
+  //   //   })
+  //   // };
+  // }
+})(DVNewTaskComponent);
 
 const WrappedNewTaskComponent = withRouter(NewTaskComponent);
 

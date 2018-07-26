@@ -1,11 +1,7 @@
 import React from 'react';
 import { UserContext } from '../context/UserContext';
-import {
-  BrowserRouter as Router,
-  Route,
-  Link,
-  Redirect
-} from 'react-router-dom';
+// eslint-disable-next-line no-unused-vars
+import { BrowserRouter as Router, Route, Redirect } from 'react-router-dom';
 
 const DVPrivateRoute = ({ component: Component, ...rest }) => (
   <UserContext.Consumer>

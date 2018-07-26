@@ -23,7 +23,7 @@ class DVLogoutComponent extends Component {
   render() {
     return (
       <UserContext.Consumer>
-        {state => <LogoutComponent signOut={state.signOut} />}
+        {state => <LogoutComponent {...this.props} signOut={state.signOut} />}
       </UserContext.Consumer>
     );
   }

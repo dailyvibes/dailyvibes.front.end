@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { BrowserRouter as Router, Route, Link } from 'react-router-dom';
+import { Link, withRouter } from 'react-router-dom';
 import { Layout, Menu, Avatar } from 'antd';
 
 import { UserContext } from '../context/UserContext';
@@ -39,9 +39,6 @@ class DVLoggedInMenuComponent extends Component {
         <Menu.Item key="home">
           <Link to="/">Daily Vibes</Link>
         </Menu.Item>
-        <Menu.Item key="logout">
-          <Link to="/logout">Logout</Link>
-        </Menu.Item>
         <Menu.Item key="projects">
           <Link to="/projects">Projects</Link>
         </Menu.Item>
@@ -51,6 +48,9 @@ class DVLoggedInMenuComponent extends Component {
               U
             </Avatar>
           </Link>
+        </Menu.Item>
+        <Menu.Item key="logout">
+          <Link to="/logout">Logout</Link>
         </Menu.Item>
       </Menu>
     );
@@ -98,6 +98,9 @@ class DVLoggedOutMenuComponent extends Component {
   }
 }
 
+const WrappedDVLoggedInMenuComponent = withRouter(DVLoggedInMenuComponent);
+const WrappedDVLoggedOutMenuComponent = withRouter(DVLoggedOutMenuComponent);
+
 export default class DVHeaderComponent extends Component {
   render() {
     return (
@@ -105,9 +108,9 @@ export default class DVHeaderComponent extends Component {
         {state => (
           <Header>
             {state.isAuthenticated ? (
-              <DVLoggedInMenuComponent />
+              <WrappedDVLoggedInMenuComponent {...this.props} />
             ) : (
-              <DVLoggedOutMenuComponent />
+              <WrappedDVLoggedOutMenuComponent {...this.props} />
             )}
           </Header>
         )}

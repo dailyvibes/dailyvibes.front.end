@@ -11,7 +11,7 @@ class _DVNewProjectComponent extends Component {
 
     this.state = {
       jwt: props.currentUser.jwt,
-      toProjects: false
+      redirectToProject: false
     };
   }
 
@@ -39,7 +39,7 @@ class _DVNewProjectComponent extends Component {
             if (json && json.id) {
               // this.props.history.push(`/projects/${json.id}`);
               this.setState({
-                toProjects: true,
+                redirectToProject: true,
                 projectId: json.id
               });
             }
@@ -65,8 +65,8 @@ class _DVNewProjectComponent extends Component {
   }
 
   render() {
-    if (this.state.toProjects === true) {
-      return <Redirect to={`/projects/${this.state.projectId}`} />;
+    if (this.state.redirectToProject === true) {
+      return <Redirect to={`/`} />;
     }
 
     const { getFieldDecorator } = this.props.form;

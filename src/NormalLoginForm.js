@@ -55,7 +55,7 @@ class NormalLoginForm extends React.Component {
         })
           .then(response => response.json())
           .then(json => {
-            console.log(json);
+            // console.log(json);
             signIn(json);
           })
           .catch(error => console.log(error));
@@ -172,6 +172,19 @@ class NormalLoginForm extends React.Component {
 
 const WrappedNormalLoginForm = Form.create()(NormalLoginForm);
 
+class WrappedNormalLoginFormWRedirect extends React.Component {
+  render() {
+    if (this.props.isAuthenticated) {
+      return (
+        <Redirect
+          to={{ pathname: '/projects', state: { from: this.props.location } }}
+        />
+      );
+    }
+    return <WrappedNormalLoginForm {...this.props} />;
+  }
+}
+
 // export default WrappedNormalLoginForm;
 
 export default class DVWrappedNormalLoginForm extends React.Component {
@@ -179,7 +192,7 @@ export default class DVWrappedNormalLoginForm extends React.Component {
     return (
       <UserContext.Consumer>
         {state => (
-          <WrappedNormalLoginForm
+          <WrappedNormalLoginFormWRedirect
             {...this.props}
             isAuthenticated={state.isAuthenticated}
             signIn={state.signIn}

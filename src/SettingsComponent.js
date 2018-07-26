@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 
-import { Row, Col, Divider, Badge, Tooltip } from 'antd';
+import { Row, Col, Divider, Tooltip } from 'antd';
 import { Form, Icon, Input, Button, message } from 'antd';
 import { UserContext } from './context/UserContext';
 
@@ -243,6 +243,7 @@ class DVUserSettings extends Component {
       jwt: props.currentUser.jwt
     };
   }
+
   componentDidMount() {
     let url = `http://localhost:5000/api/current`;
     fetch(url, {

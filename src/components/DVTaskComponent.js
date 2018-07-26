@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
 
-import { Route, withRouter } from 'react-router-dom';
+import { withRouter, Link } from 'react-router-dom';
+
+import { Breadcrumb } from 'antd';
 
 import DVTaskViewComponent from './DVTaskViewComponent';
 import { UserContext } from '../context/UserContext';
@@ -28,25 +30,51 @@ class TaskComponent extends Component {
       .then(response => response.json())
       .then(json => {
         if (!!json) {
-          console.log(json);
           this.setState({
             task: json
           });
         }
-        // console.log(json);
+      })
+      .catch(error => console.error(error));
+
+    const url = `http://localhost:5000/api/lists`;
+
+    fetch(url, {
+      headers: {
+        Authorization: `Bearer ${this.state.jwt}`
+      }
+    })
+      .then(response => response.json())
+      .then(json => {
+        this.setState({
+          projects: json
+        });
       })
       .catch(error => console.error(error));
   }
 
   render() {
-    const { task } = this.state;
+    const { task, jwt, projects } = this.state;
+
     return (
       <React.Fragment>
-        <h1> Task </h1>
+        {/* <h1> Task </h1> */}
+        <Breadcrumb>
+          <Breadcrumb.Item>
+            <Link to="/">Home</Link>
+          </Breadcrumb.Item>
+          <Breadcrumb.Item>
+            <Link to={`/projects/${task.list_id}`}>Project</Link>
+          </Breadcrumb.Item>
+          <Breadcrumb.Item>{task.title}</Breadcrumb.Item>
+        </Breadcrumb>
         <DVTaskViewComponent
-          ownedBy={task.list_id}
           task={task}
-          jwt={this.state.jwt}
+          jwt={jwt}
+          projects={projects}
+          tags={task.tags}
+          notes={task.notes}
+          ownedBy={task.list_id}
         />
       </React.Fragment>
     );

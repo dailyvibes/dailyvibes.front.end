@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
 
-import { Route, withRouter } from 'react-router-dom';
+import { withRouter, Redirect } from 'react-router-dom';
 
-import { Table, Icon, Button, Popconfirm, Divider } from 'antd';
+import { Table, Icon, Button } from 'antd';
 import 'antd/dist/antd.css';
 
 import DVNewTaskComponent from './DVNewTaskComponent';
@@ -14,12 +14,15 @@ class ProjectList extends Component {
 
     this.handleAddTask = this.handleAddTask.bind(this);
     this.handleTaskCreateCancel = this.handleTaskCreateCancel.bind(this);
+    this.handleListDelete = this.handleListDelete.bind(this);
 
     this.state = {
       projectUUID: props.match.params.projectUUID,
       tasks: [],
       showAddTask: false,
-      jwt: props.jwt
+      jwt: props.jwt,
+      redirectToProjects: false,
+      showDeleteBtn: false
     };
   }
 
@@ -37,8 +40,11 @@ class ProjectList extends Component {
           this.setState({
             tasks: json.todotask_items
           });
+          this.setState({
+            showDeleteBtn: !json.dv_default
+          });
         }
-        console.log(json);
+        // console.log(json);
       })
       .catch(error => console.error(error));
   }
@@ -51,8 +57,38 @@ class ProjectList extends Component {
     this.setState({ showAddTask: false });
   }
 
+  handleListDelete(e) {
+    e.preventDefault();
+
+    let url = `http://localhost:5000/api/lists/${this.state.projectUUID}`;
+
+    fetch(url, {
+      method: 'Delete',
+      mode: 'cors',
+      cache: 'no-cache',
+      headers: {
+        'Content-Type': 'application/json; charset=utf-8',
+        Authorization: `Bearer ${this.state.jwt}`
+      }
+    })
+      .then(response => {
+        if (!response.ok) {
+          return;
+        }
+
+        this.setState({
+          redirectToProjects: true
+        });
+      })
+      .catch(error => console.log(error));
+  }
+
   render() {
-    const { showAddTask, projectUUID, tasks } = this.state;
+    if (this.state.redirectToProjects) {
+      return <Redirect to={`/projects`} />;
+    }
+
+    const { showAddTask, projectUUID, tasks, showDeleteBtn } = this.state;
     let button;
 
     // console.log(projectUUID);
@@ -62,37 +98,37 @@ class ProjectList extends Component {
         title: 'Task',
         dataIndex: 'title',
         key: 'title',
-        render: (text, record) => (
+        render: (_, record) => (
           <a href={`/tasks/${record.id}`} title={record.title} key={record.id}>
             {record.title}
           </a>
         )
-      },
-      {
-        title: 'Action',
-        key: 'action',
-        render: (text, record) => (
-          <span>
-            <Popconfirm title="Are you sure？" okText="Yes" cancelText="No">
-              <a
-                href={`http://localhost:5000/api/tasks/${record.id}/delete`}
-                key={record.id}
-              >
-                Delete
-              </a>
-            </Popconfirm>
-            <Divider type="vertical" />
-            <Popconfirm title="Are you sure？" okText="Yes" cancelText="No">
-              <a
-                href={`http://localhost:5000/api/tasks/${record.id}/archive`}
-                key={record.id}
-              >
-                Archive
-              </a>
-            </Popconfirm>
-          </span>
-        )
       }
+      // {
+      //   title: 'Action',
+      //   key: 'action',
+      //   render: (_, record) => (
+      //     <span>
+      //       <Popconfirm title="Are you sure？" okText="Yes" cancelText="No">
+      //         <a
+      //           href={`http://localhost:5000/api/tasks/${record.id}/delete`}
+      //           key={record.id}
+      //         >
+      //           Delete
+      //         </a>
+      //       </Popconfirm>
+      //       <Divider type="vertical" />
+      //       <Popconfirm title="Are you sure？" okText="Yes" cancelText="No">
+      //         <a
+      //           href={`http://localhost:5000/api/tasks/${record.id}/archive`}
+      //           key={record.id}
+      //         >
+      //           Archive
+      //         </a>
+      //       </Popconfirm>
+      //     </span>
+      //   )
+      // }
     ];
 
     if (!showAddTask) {
@@ -120,11 +156,22 @@ class ProjectList extends Component {
             </Button>
           </React.Fragment>
         ) : (
-          <Table
-            dataSource={tasks}
-            columns={columns}
-            rowKey={record => record.id}
-          />
+          <React.Fragment>
+            <Table
+              dataSource={tasks}
+              columns={columns}
+              rowKey={record => record.id}
+            />
+            {showDeleteBtn && (
+              <Button
+                type="danger"
+                style={{ margin: '1em' }}
+                onClick={this.handleListDelete}
+              >
+                Delete Project
+              </Button>
+            )}
+          </React.Fragment>
         )}
       </div>
     );
@@ -148,3 +195,8 @@ class DVProjectList extends Component {
 }
 
 export { DVProjectList };
+
+// const PrivWrappedDVProjectList = withRouter(DVProjectList);
+//     const WrappedDVProjectList = (
+//       <PrivWrappedDVProjectList {...this.props} projects={projects} />
+//     );

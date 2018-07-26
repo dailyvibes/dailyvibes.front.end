@@ -40,7 +40,6 @@ class ProjectsList extends Component {
         this.setState({
           projects: json
         });
-        console.log(json);
       })
       .catch(error => console.error(error));
   }
@@ -53,6 +52,7 @@ class ProjectsList extends Component {
     if (value && value.key) {
       let match = this.props.match;
       let redirectURL = `${match.url}/${value.key}`;
+      this.setState({ selectedProject: value.key });
       this.props.history.push(redirectURL);
     }
   }
@@ -71,7 +71,8 @@ class ProjectsList extends Component {
 
   handleProjectCreateCancel() {
     this.setState({
-      showAddProject: false
+      showAddProject: false,
+      selectedProject: ''
     });
   }
 
@@ -100,13 +101,18 @@ class ProjectsList extends Component {
       );
     });
 
+    // const PrivWrappedDVProjectList = withRouter(DVProjectList);
+    // const WrappedDVProjectList = (
+    //   <PrivWrappedDVProjectList {...this.props} projects={projects} />
+    // );
+
     return (
       <div>
         <h2>Projects</h2>
         {button}
         {showAddProject ? (
           <React.Fragment>
-            <DVNewProjectComponent />
+            <DVNewProjectComponent {...this.props} />
             <Button
               style={{ marginLeft: 8 }}
               onClick={this.handleProjectCreateCancel}
@@ -126,7 +132,7 @@ class ProjectsList extends Component {
             </Select>
             <Route
               path={`${match.url}/:projectUUID`}
-              component={withRouter(DVProjectList)}
+              component={DVProjectList}
             />
           </React.Fragment>
         )}

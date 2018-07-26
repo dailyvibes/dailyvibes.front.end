@@ -1,11 +1,6 @@
 import React from 'react';
 import './App.css';
-import {
-  BrowserRouter as Router,
-  Route,
-  Link,
-  Redirect
-} from 'react-router-dom';
+import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
 import { Layout, Icon } from 'antd';
 
 import WrappedNormalLoginForm from './NormalLoginForm';
@@ -13,10 +8,12 @@ import ForgotPasswordForm from './ForgotPassword';
 import Home from './HomeComponent';
 import About from './AboutComponent';
 import Settings from './SettingsComponent';
-import ProjectsComponent from './components/ProjectsComponent';
+// import ProjectsComponent from './components/ProjectsComponent';
 import { DVTaskComponent } from './components/DVTaskComponent';
 import DVHeaderComponent from './components/DVHeaderComponent';
 import { DVLogoutComponent } from './components/DVLogoutComponent';
+
+import { DVProjectsList } from './components/DVProjectsList';
 
 import { UserContextWrapper } from './context/UserContext';
 import { DVPrivateRoute } from './utils/PrivateRoute';
@@ -26,9 +23,9 @@ import GlobalFooter from 'ant-design-pro/lib/GlobalFooter';
 const { Content, Footer } = Layout;
 
 const Login = () => (
-  <div>
+  <React.Fragment>
     <WrappedNormalLoginForm />
-  </div>
+  </React.Fragment>
 );
 
 const links = [
@@ -73,20 +70,19 @@ class App extends React.Component {
                   minHeight: 'calc(100vh - 20vh)'
                 }}
               >
-                <Route exact path="/" component={Home} />
-                <Route path="/about" component={About} />
-                <Route path="/login" component={Login} />
-                <Route path="/logout" component={DVLogoutComponent} />
-                <Route path="/forgot" component={ForgotPasswordForm} />
-                <DVPrivateRoute
-                  path="/projects"
-                  component={ProjectsComponent}
-                />
-                <DVPrivateRoute path="/settings" component={Settings} />
-                <DVPrivateRoute
-                  path="/tasks/:uuid"
-                  component={DVTaskComponent}
-                />
+                <Switch>
+                  <Route exact path="/" component={Home} />
+                  <Route path="/about" component={About} />
+                  <Route path="/login" component={Login} />
+                  <Route path="/logout" component={DVLogoutComponent} />
+                  <Route path="/forgot" component={ForgotPasswordForm} />
+                  <DVPrivateRoute path="/projects" component={DVProjectsList} />
+                  <DVPrivateRoute path="/settings" component={Settings} />
+                  <DVPrivateRoute
+                    path="/tasks/:uuid"
+                    component={DVTaskComponent}
+                  />
+                </Switch>
               </div>
             </Content>
             <Footer style={{ overflow: 'hidden' }}>
